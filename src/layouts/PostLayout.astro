@@ -1,0 +1,130 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import ArticleSchema from '../components/ArticleSchema.astro';
+import FAQSchema from '../components/FAQSchema.astro';
+import BreadcrumbSchema from '../components/BreadcrumbSchema.astro';
+import FAQSection from '../components/FAQSection.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  publishDate: Date;
+  updateDate?: Date;
+  author: string;
+  category: string;
+  tags: string[];
+  featuredImage?: string;
+  featuredImageAlt?: string;
+  keywords: string[];
+  faq: { question: string; answer: string }[];
+  tldr?: string;
+  canonical?: string;
+}
+
+const props = Astro.props;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+
+const breadcrumb = [
+  { name: '宇宙種子', url: 'https://cosmoseed.com.tw' },
+  { name: '部落格', url: 'https://cosmoseed.com.tw/blog' },
+  { name: props.title, url },
+];
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString('zh-TW', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+---
+
+<BaseLayout
+  title={`${props.title}｜宇宙種子 Blog`}
+  description={props.description}
+  canonical={props.canonical ?? url}
+  image={props.featuredImage}
+  type="article"
+>
+  <Fragment slot="head">
+    <ArticleSchema
+      title={props.title}
+      description={props.description}
+      url={url}
+      publishDate={props.publishDate}
+      updateDate={props.updateDate}
+      author={props.author}
+      image={props.featuredImage}
+      keywords={props.keywords}
+    />
+    <FAQSchema faq={props.faq} />
+    <BreadcrumbSchema items={breadcrumb} />
+  </Fragment>
+
+  <article class="max-w-3xl mx-auto px-5 md:px-8 pt-10 md:pt-16 pb-10">
+    <nav class="text-sm text-[#64748b] mb-6" aria-label="Breadcrumb">
+      <a href="/blog" class="hover:text-[#4f46e5]">← 回到所有文章</a>
+    </nav>
+
+    <header class="mb-10">
+      <div class="flex items-center gap-2 flex-wrap mb-4">
+        <span class="pill">{props.category}</span>
+        {props.tags.slice(0, 3).map((tag) => (
+          <span class="text-xs text-[#64748b]">#{tag}</span>
+        ))}
+      </div>
+
+      <h1 class="display-font text-3xl md:text-5xl font-bold leading-tight mb-5">
+        {props.title}
+      </h1>
+
+      <p class="text-lg text-[#475569] leading-relaxed mb-6">{props.description}</p>
+
+      <div class="flex items-center gap-3 text-sm text-[#64748b]">
+        <span>{props.author}</span>
+        <span class="text-[#cbd5e1]">·</span>
+        <time datetime={props.publishDate.toISOString()}>
+          {formatDate(props.publishDate)}
+        </time>
+        {props.updateDate && (
+          <>
+            <span class="text-[#cbd5e1]">·</span>
+            <span>更新於 {formatDate(props.updateDate)}</span>
+          </>
+        )}
+      </div>
+    </header>
+
+    {props.featuredImage && (
+      <img
+        src={props.featuredImage}
+        alt={props.featuredImageAlt ?? props.title}
+        class="w-full rounded-2xl shadow-lg mb-10"
+        loading="eager"
+      />
+    )}
+
+    {props.tldr && (
+      <aside class="card p-6 mb-10 border-l-4 border-l-[#a78bfa]">
+        <div class="text-xs font-semibold text-[#a78bfa] tracking-wider mb-2">TL;DR</div>
+        <p class="text-[#1e293b] leading-relaxed m-0">{props.tldr}</p>
+      </aside>
+    )}
+
+    <div class="prose prose-lg max-w-none">
+      <slot />
+    </div>
+
+    <FAQSection faq={props.faq} />
+
+    <section class="mt-16 card p-7 md:p-10">
+      <h3 class="display-font text-xl md:text-2xl font-bold mb-3">想跟我們一起把 AI 學好用好？</h3>
+      <p class="text-[#475569] mb-5">每月兩次免費線上共學聚，從 Claude、Gemini、ChatGPT 到 AI 工作流，把硬核工具講成人話。</p>
+      <a
+        href="https://event.cosmoseed.com.tw"
+        class="inline-block cta-gradient px-6 py-3 rounded-full font-medium text-sm md:text-base"
+      >
+        了解共學聚 →
+      </a>
+    </section>
+  </article>
+</BaseLayout>

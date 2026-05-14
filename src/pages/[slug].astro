@@ -1,0 +1,33 @@
+---
+import { getCollection, render } from 'astro:content';
+import PostLayout from '../layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id.replace(/\.md$/, '') },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<PostLayout
+  title={post.data.title}
+  description={post.data.description}
+  publishDate={post.data.publishDate}
+  updateDate={post.data.updateDate}
+  author={post.data.author}
+  category={post.data.category}
+  tags={post.data.tags}
+  featuredImage={post.data.featuredImage}
+  featuredImageAlt={post.data.featuredImageAlt}
+  keywords={post.data.keywords}
+  faq={post.data.faq}
+  tldr={post.data.tldr}
+  canonical={post.data.canonical}
+>
+  <Content />
+</PostLayout>

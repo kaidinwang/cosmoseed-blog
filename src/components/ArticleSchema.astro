@@ -1,0 +1,56 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  url: string;
+  publishDate: Date;
+  updateDate?: Date;
+  author: string;
+  image?: string;
+  keywords?: string[];
+}
+
+const {
+  title,
+  description,
+  url,
+  publishDate,
+  updateDate,
+  author,
+  image,
+  keywords = [],
+} = Astro.props;
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  description,
+  url,
+  datePublished: publishDate.toISOString(),
+  dateModified: (updateDate ?? publishDate).toISOString(),
+  author: {
+    '@type': 'Person',
+    name: author,
+    url: 'https://cosmoseed.com.tw',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: '宇宙種子 CosmoSeed',
+    url: 'https://cosmoseed.com.tw',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://event.cosmoseed.com.tw/banner.png',
+    },
+  },
+  image: image ? [image] : ['https://event.cosmoseed.com.tw/banner.png'],
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': url,
+  },
+  ...(keywords.length > 0 && { keywords: keywords.join(', ') }),
+  inLanguage: 'zh-TW',
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -1,0 +1,18 @@
+---
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<header class="border-b border-[rgba(15,23,42,0.06)] bg-white/60 backdrop-blur-sm sticky top-0 z-50">
+  <div class="max-w-5xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between">
+    <a href={base || '/'} class="flex items-center gap-2 group">
+      <span class="text-xl display-font font-bold tracking-tight">
+        宇宙種子 <span class="text-[#a78bfa]">·</span> Blog
+      </span>
+    </a>
+    <nav class="flex items-center gap-5 text-sm">
+      <a href="https://cosmoseed.com.tw" class="hover:text-[#4f46e5] transition">工具箱</a>
+      <a href="https://event.cosmoseed.com.tw" class="hover:text-[#4f46e5] transition">共學聚</a>
+      <a href={base || '/'} class="font-medium text-[#4f46e5]">部落格</a>
+    </nav>
+  </div>
+</header>
