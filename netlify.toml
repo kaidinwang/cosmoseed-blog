@@ -5,6 +5,15 @@
 [build.environment]
   NODE_VERSION = "20"
 
+# Internally rewrite /slug to /slug/index.html so Netlify does NOT issue a
+# trailing-slash 301. Critical when this site is served via reverse proxy
+# from cosmoseed.com.tw/blog/* — a 301 would bounce visitors off the apex.
+[[redirects]]
+  from = "/:slug"
+  to = "/:slug/index.html"
+  status = 200
+  force = false
+
 [[headers]]
   for = "/blog/*"
   [headers.values]
