@@ -1,18 +1,155 @@
 ---
-const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pathname = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const isBlogHome = pathname === '/blog' || pathname === '/blog/index.html' || pathname === '/';
 ---
 
-<header class="border-b border-[rgba(15,23,42,0.06)] bg-white/60 backdrop-blur-sm sticky top-0 z-50">
-  <div class="max-w-5xl mx-auto px-5 md:px-8 py-4 flex items-center justify-between">
-    <a href={base || '/'} class="flex items-center gap-2 group">
-      <span class="text-xl display-font font-bold tracking-tight">
-        宇宙種子 <span class="text-[#a78bfa]">·</span> Blog
+<nav class="cs-nav">
+  <div class="cs-nav-inner">
+    <a href="https://cosmoseed.com.tw" class="cs-logo" aria-label="CosmoSeed AI 工具箱首頁">
+      <span class="cs-logo-icon">
+        <svg width="14" height="18" viewBox="0 0 60 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="38,2 10,42 30,42 22,78 52,36 32,36" fill="white"/>
+        </svg>
       </span>
+      CosmoSeed <em>AI 工具箱</em>
     </a>
-    <nav class="flex items-center gap-5 text-sm">
-      <a href="https://cosmoseed.com.tw" class="hover:text-[#4f46e5] transition">工具箱</a>
-      <a href="https://event.cosmoseed.com.tw" class="hover:text-[#4f46e5] transition">共學聚</a>
-      <a href={base || '/'} class="font-medium text-[#4f46e5]">部落格</a>
-    </nav>
+    <div class="cs-nav-menu" role="navigation" aria-label="主選單">
+      <a href="https://cosmoseed.com.tw">工具箱</a>
+      <a href="/blog" class="active">部落格</a>
+      <a href="https://event.cosmoseed.com.tw">共學聚</a>
+    </div>
+    <form class="cs-search-group" id="csBlogSearchForm" role="search" action="/blog" method="get">
+      <div class="cs-search-wrap">
+        <span class="cs-search-icon">🔍</span>
+        <input
+          type="text"
+          id="csBlogSearchInput"
+          name="q"
+          placeholder="搜尋文章..."
+          aria-label="搜尋文章"
+          autocomplete="off"
+        />
+      </div>
+      <button type="submit" class="cs-nav-cta">確認 ✓</button>
+      <a href="https://event.cosmoseed.com.tw/courses" class="cs-nav-link-courses" aria-label="AI 共學聚課程資訊">
+        <span>📅</span>
+        <span class="cs-nav-link-txt">課程資訊</span>
+      </a>
+    </form>
   </div>
-</header>
+</nav>
+
+<style is:global>
+  :root {
+    --cs-orange: #FF6B35;
+    --cs-orange-h: #ff7d4d;
+    --cs-orange-dim: rgba(255,107,53,0.16);
+    --cs-orange-border: rgba(255,107,53,0.35);
+    --cs-text: #f1f5f9;
+    --cs-muted: #94a3b8;
+    --cs-dim: #64748b;
+    --cs-surface: rgba(255,255,255,0.04);
+    --cs-border: rgba(255,255,255,0.08);
+    --cs-rs: 8px;
+  }
+  .cs-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--cs-border);
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .cs-nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; align-items: center; gap: 14px;
+    height: 60px; padding: 0 24px;
+  }
+  .cs-logo {
+    font-size: 15px; font-weight: 900; white-space: nowrap; flex-shrink: 0;
+    letter-spacing: -0.02em; display: flex; align-items: center; gap: 7px;
+    color: var(--cs-text); text-decoration: none;
+  }
+  .cs-logo em { color: var(--cs-orange); font-style: normal; }
+  .cs-logo-icon {
+    width: 28px; height: 28px; background: var(--cs-orange); border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .cs-nav-menu { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .cs-nav-menu a {
+    padding: 7px 12px; font-size: 14px; font-weight: 500;
+    color: var(--cs-text); border-radius: var(--cs-rs);
+    transition: background .15s, color .15s; white-space: nowrap; text-decoration: none;
+  }
+  .cs-nav-menu a:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  .cs-nav-menu a.active { color: var(--cs-orange); background: var(--cs-orange-dim); }
+  @media (max-width: 900px) { .cs-nav-menu { display: none; } }
+
+  .cs-search-group {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin: 0;
+  }
+  .cs-search-wrap { position: relative; width: 100%; max-width: 300px; }
+  .cs-search-wrap input {
+    width: 100%; background: var(--cs-surface); border: 1px solid var(--cs-border);
+    border-radius: var(--cs-rs); padding: 8px 14px 8px 38px;
+    color: var(--cs-text); font-size: 14px; outline: none;
+    transition: border-color .2s; font-family: inherit;
+  }
+  .cs-search-wrap input:focus { border-color: var(--cs-orange); }
+  .cs-search-wrap input::placeholder { color: var(--cs-dim); }
+  .cs-search-icon {
+    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+    color: var(--cs-dim); font-size: 13px; pointer-events: none;
+  }
+  .cs-nav-cta {
+    background: var(--cs-orange); color: #fff; padding: 8px 16px;
+    border-radius: var(--cs-rs); font-size: 13px; font-weight: 700;
+    white-space: nowrap; flex-shrink: 0;
+    transition: background .2s, transform .15s;
+    border: none; cursor: pointer; font-family: inherit;
+  }
+  .cs-nav-cta:hover { background: var(--cs-orange-h); transform: translateY(-1px); }
+
+  .cs-nav-link-courses {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+    color: #fff; padding: 8px 14px;
+    border-radius: var(--cs-rs); font-size: 13px; font-weight: 700;
+    white-space: nowrap; flex-shrink: 0; text-decoration: none;
+    transition: transform .15s, box-shadow .2s;
+    box-shadow: 0 4px 14px -4px rgba(168, 85, 247, 0.5);
+  }
+  .cs-nav-link-courses:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px -4px rgba(168, 85, 247, 0.7);
+  }
+  @media (max-width: 640px) {
+    .cs-nav-link-courses .cs-nav-link-txt { display: none; }
+    .cs-nav-link-courses { padding: 8px 10px; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    const form = document.getElementById('csBlogSearchForm');
+    const input = document.getElementById('csBlogSearchInput');
+    if (!form || !input) return;
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) input.value = q;
+    form.addEventListener('submit', function (e) {
+      const val = input.value.trim();
+      if (!val) {
+        e.preventDefault();
+        return;
+      }
+      const path = window.location.pathname.replace(/\/+$/, '');
+      const onBlogIndex = path === '/blog' || path === '' || path === '/blog/index.html';
+      if (!onBlogIndex) {
+        e.preventDefault();
+        window.location.href = '/blog/?q=' + encodeURIComponent(val);
+      }
+    });
+  })();
+</script>

@@ -38,14 +38,22 @@ const formatDate = (date: Date) =>
   </section>
 
   <section class="max-w-4xl mx-auto px-5 md:px-8 pb-20">
+    <div id="blogSearchStatus" class="hidden mb-6 text-sm text-[#475569]"></div>
     {posts.length === 0 ? (
       <div class="card p-10 text-center text-[#64748b]">
         部落格剛開張，第一篇文章準備中。
       </div>
     ) : (
-      <div class="grid gap-5 md:gap-6">
+      <div id="blogPostList" class="grid gap-5 md:gap-6">
         {posts.map((post) => (
-          <a href={`/blog/${post.id.replace(/\.md$/, '')}`} class="card p-7 md:p-9 group block hover:shadow-xl transition-shadow">
+          <a
+            href={`/blog/${post.id.replace(/\.md$/, '')}`}
+            class="card p-7 md:p-9 group block hover:shadow-xl transition-shadow blog-post-card"
+            data-title={post.data.title}
+            data-description={post.data.description}
+            data-category={post.data.category}
+            data-tags={(post.data.tags ?? []).join(' ')}
+          >
             <div class="flex items-center gap-3 mb-3 flex-wrap">
               <span class="pill">{post.data.category}</span>
               <time class="text-xs text-[#64748b]" datetime={post.data.publishDate.toISOString()}>
@@ -65,7 +73,38 @@ const formatDate = (date: Date) =>
         ))}
       </div>
     )}
+    <div id="blogSearchEmpty" class="hidden card p-10 text-center text-[#64748b]">
+      沒有符合的文章。試試其他關鍵字，或 <a href="/blog" class="text-[#4f46e5] underline">清除搜尋</a>。
+    </div>
   </section>
+
+  <script is:inline>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const q = (params.get('q') || '').trim().toLowerCase();
+      if (!q) return;
+      const status = document.getElementById('blogSearchStatus');
+      const empty = document.getElementById('blogSearchEmpty');
+      const cards = document.querySelectorAll('.blog-post-card');
+      let visible = 0;
+      cards.forEach((card) => {
+        const hay = [
+          card.dataset.title || '',
+          card.dataset.description || '',
+          card.dataset.category || '',
+          card.dataset.tags || '',
+        ].join(' ').toLowerCase();
+        const match = hay.includes(q);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      if (status) {
+        status.classList.remove('hidden');
+        status.innerHTML = '搜尋「<strong>' + q.replace(/[<>&]/g, '') + '</strong>」結果 ' + visible + ' 篇 · <a href="/blog" class="text-[#4f46e5] underline">清除</a>';
+      }
+      if (empty && visible === 0) empty.classList.remove('hidden');
+    })();
+  </script>
 </BaseLayout>
 
 <style>
